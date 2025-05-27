@@ -1,7 +1,7 @@
 // lib/login_page.dart
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:satufakta/views/main_screen.dart';
+import 'package:satufakta/views/home_screen.dart';
 import 'package:satufakta/views/resgister_screen.dart';
 import 'package:satufakta/views/utils/helper.dart';
 
@@ -163,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Proses login
                       Navigator.pushReplacement( // Ganti halaman agar tidak bisa kembali ke login
                         context,
-                        MaterialPageRoute(builder: (context) => const MainScreen()),
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
                       );
                     // }
                   },
