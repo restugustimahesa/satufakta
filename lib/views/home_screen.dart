@@ -1,11 +1,14 @@
-// lib/pages/home_page.dart
+// lib/views/home_screen.dart (atau path yang sesuai di proyek Anda)
 import 'package:flutter/material.dart';
 import 'package:satufakta/models/post_model.dart';
-import 'package:satufakta/views/widget/post_card.dart';
-import 'package:satufakta/views/widget/app_drawer.dart';
-import 'package:satufakta/views/utils/helper.dart';
+// Pastikan path ke widget dan utils sudah benar
+import 'package:satufakta/views/widget/post_card.dart'; // Diubah dari views/widget/post_card.dart
+import 'package:satufakta/views/widget/app_drawer.dart'; // Diubah dari views/widget/app_drawer.dart
+import 'package:satufakta/views/utils/helper.dart';       // Diubah dari views/utils/helper.dart
+import 'package:satufakta/views/saved_screen.dart'; // Impor SavedScreen
 
 class HomeScreen extends StatefulWidget {
+  static const routeName = '/home'; // Tambahkan routeName jika belum ada
   const HomeScreen({super.key});
 
   @override
@@ -20,12 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<Post> _allPosts;
   List<Post> _displayPosts = [];
 
-  final String _sampleImageUrl1 =
-      'assets/images/news1.jpg';
-  final String _sampleImageUrl2 =
-      'assets/images/news1.jpg';
-  final String _sampleImageUrl3 =
-      'assets/images/news2.jpeg';
+  // Path asset Anda
+  final String _sampleImageUrl1 = 'assets/images/news1.jpg';
+  final String _sampleImageUrl2 = 'assets/images/news1.jpg'; // Anda menggunakan gambar yang sama
+  final String _sampleImageUrl3 = 'assets/images/news2.jpeg';
   final String _sampleAvatarUrl = 'assets/images/avatar.png';
 
 
@@ -38,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: 'Exploring the Serene Lakes',
           content: 'Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor incididunt ut labore et dolore magna aliqua.',
           imageUrl: _sampleImageUrl1,
-          author: Author(name: 'Diar', avatarUrl: '${_sampleAvatarUrl}'),
+          author: Author(name: 'Diar', avatarUrl: _sampleAvatarUrl), // Dihilangkan '${}' yang tidak perlu
           date: DateTime(2025, 7, 14),
           category: 'popular',
           isBookmarked: false),
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: 'Mountain Vistas & Adventure',
           content: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
           imageUrl: _sampleImageUrl2,
-          author: Author(name: 'Restu', avatarUrl: '${_sampleAvatarUrl}'),
+          author: Author(name: 'Restu', avatarUrl: _sampleAvatarUrl), // Dihilangkan '${}'
           date: DateTime(2025, 7, 12),
           category: 'popular',
           isBookmarked: true),
@@ -56,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: 'Forest Trails and Wildlife',
           content: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
           imageUrl: _sampleImageUrl3,
-          author: Author(name: 'Jembar', avatarUrl: '${_sampleAvatarUrl}'),
+          author: Author(name: 'Jembar', avatarUrl: _sampleAvatarUrl), // Dihilangkan '${}'
           date: DateTime(2025, 5, 20),
           category: 'new',
           isBookmarked: false),
@@ -64,8 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
           id: '4',
           title: 'City Skylines at Night',
           content: 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-          imageUrl: _sampleImageUrl3,
-          author: Author(name: 'KDM', avatarUrl: '${_sampleAvatarUrl}'),
+          imageUrl: _sampleImageUrl3, // Anda menggunakan _sampleImageUrl3 lagi
+          author: Author(name: 'KDM', avatarUrl: _sampleAvatarUrl), // Dihilangkan '${}'
           date: DateTime(2025, 5, 15),
           category: 'new',
           isBookmarked: false),
@@ -79,7 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       _displayPosts = _allPosts.where((post) => post.category == 'new').toList();
     }
-    setState(() {});
+    // Urutkan berdasarkan tanggal (opsional, yang terbaru di atas)
+    _displayPosts.sort((a,b) => b.date.compareTo(a.date));
+    if (mounted) { // Pastikan widget masih ter-mount sebelum memanggil setState
+      setState(() {});
+    }
   }
 
   void _togglePostType() {
@@ -98,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final postIndex = _allPosts.indexWhere((p) => p.id == postId);
       if (postIndex != -1) {
         _allPosts[postIndex].isBookmarked = !_allPosts[postIndex].isBookmarked;
-         // Jika Anda ingin perubahan bookmark langsung terlihat di _displayPosts
+        // Perbarui juga _displayPosts jika item yang di-bookmark ada di sana
         final displayPostIndex = _displayPosts.indexWhere((p) => p.id == postId);
         if (displayPostIndex != -1) {
           _displayPosts[displayPostIndex].isBookmarked = _allPosts[postIndex].isBookmarked;
@@ -108,33 +113,56 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onBottomNavTapped(int index) {
+    // Hindari rebuild jika tab yang sama dipilih (kecuali untuk Saved yang mungkin perlu refresh)
+    // if (index == _selectedBottomNavIndex && index != 1) return;
+
     setState(() {
       _selectedBottomNavIndex = index;
-      // Tambahkan logika navigasi atau aksi lain di sini
-      if (index == 0) { // Home
-        // Sudah di home
-      } else if (index == 1) { // Bookmark
-        // Mungkin navigasi ke halaman bookmark
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Halaman Bookmark (Belum dibuat)')),
-        );
-      } else if (index == 2) { // Profile
-         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Halaman Profil (Belum dibuat)')),
-        );
-      } else if (index == 3) { // Up Arrow
-         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Aksi Panah Atas (Belum dibuat)')),
-        );
-      }
     });
+
+    if (index == 0) { // Home
+      // Anda sudah di HomeScreen, mungkin tidak perlu aksi khusus
+      // atau bisa memuat ulang filter default jika diperlukan
+      // _currentPostType = 'Postingan Populer'; // Reset ke default jika perlu
+      // _filterPosts();
+    } else if (index == 1) { // Saved/Bookmark
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SavedScreen(
+            allPosts: _allPosts,
+            onToggleBookmark: _toggleBookmark,
+          ),
+        ),
+      ).then((_) {
+        // Callback ini dijalankan ketika SavedScreen di-pop (ditutup)
+        // Kita perlu memastikan HomeScreen merefleksikan perubahan bookmark
+        // Karena _toggleBookmark sudah melakukan setState pada _allPosts,
+        // _allPosts sudah termutakhir. Cukup filter ulang _displayPosts.
+        if (mounted) {
+          _filterPosts();
+           // Reset bottom nav index ke Home jika kembali dari SavedScreen (opsional)
+          // setState(() {
+          //   _selectedBottomNavIndex = 0;
+          // });
+        }
+      });
+    } else if (index == 2) { // Profile
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Halaman Profil (Belum dibuat)')),
+      );
+    } else if (index == 3) { // Up Arrow/Lainnya
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Aksi Lainnya (Belum dibuat)')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[100], // Background halaman
+      backgroundColor: Colors.grey[100],
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
@@ -148,35 +176,48 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 40,
             decoration: BoxDecoration(
               color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(20.0),
+              borderRadius: BorderRadius.circular(8.0), // Disesuaikan dari 20.0 ke 8.0 agar mirip referensi lain
             ),
             child: Row(
               children: <Widget>[
-                hsSmall,
                 Padding(
-                  padding: const EdgeInsets.only(left: 2.0, right:0), // Adjust spacing
+                  padding: const EdgeInsets.only(left: 10.0, right: 4.0), // Disesuaikan
                   child: Icon(Icons.search, color: Colors.grey[700], size: 20)
                 ),
-                hsSmall,
+                // hsSmall dihapus, padding di atas sudah cukup
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Search Anything',
+                      hintText: 'Search Anything', // Diubah dari 'Cari Apapun....'
                       hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0), // Adjust padding
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
                     ),
                     style: const TextStyle(fontSize: 14),
+                    onSubmitted: (value) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Pencarian "$value" (belum diimplementasikan)')),
+                      );
+                    },
                   ),
                 ),
               ],
             ),
           ),
           actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.grey[700]),
+            // Ikon search di actions mungkin tidak diperlukan jika sudah ada di title
+            // IconButton(
+            //   icon: Icon(Icons.search, color: Colors.grey[700]),
+            //   onPressed: () {
+            //     // Aksi pencarian
+            //   },
+            // ),
+            IconButton( // Mengganti search dengan notifikasi agar konsisten
+              icon: Icon(Icons.notifications_none_outlined, color: Colors.grey[700]),
               onPressed: () {
-                // Aksi pencarian
+                 ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Halaman Notifikasi (Belum dibuat)')),
+                );
               },
             ),
           ],
@@ -193,16 +234,16 @@ class _HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 Row(
                   children: [
-                     Container( // Indikator merah kecil
+                     Container(
                       width: 4,
                       height: 20,
-                      color: const Color(0xFFF56A79), // Warna pink
+                      color: const Color(0xFFF56A79),
                       margin: const EdgeInsets.only(right: 8.0),
                     ),
                     Text(
                       _currentPostType,
                       style: const TextStyle(
-                        fontSize: 20.0,
+                        fontSize: 18.0, // Disesuaikan dari 20.0
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -211,14 +252,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: <Widget>[
                     IconButton(
-                      icon: const Icon(Icons.chevron_left),
+                      icon: const Icon(Icons.chevron_left, size: 28), // Ukuran ikon disesuaikan
                       onPressed: _togglePostType,
-                      tooltip: 'Previous',
+                      tooltip: 'Previous Type', // Tooltip lebih deskriptif
                     ),
                     IconButton(
-                      icon: const Icon(Icons.chevron_right),
+                      icon: const Icon(Icons.chevron_right, size: 28), // Ukuran ikon disesuaikan
                       onPressed: _togglePostType,
-                       tooltip: 'Next',
+                       tooltip: 'Next Type', // Tooltip lebih deskriptif
                     ),
                   ],
                 ),
@@ -226,13 +267,23 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
+            child: _displayPosts.isEmpty
+                ? Center(
+                    child: Text(
+                    'Tidak ada postingan untuk kategori "$_currentPostType"',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ))
+                : ListView.builder(
+                    padding: const EdgeInsets.only(top:0, bottom: 8.0),
                     itemCount: _displayPosts.length,
                     itemBuilder: (context, index) {
                       final post = _displayPosts[index];
-                      return PostCard(
-                        post: post,
-                        onBookmarkTap: () => _toggleBookmark(post.id),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 0), // Atur jarak antar PostCard jika perlu
+                        child: PostCard(
+                          post: post,
+                          onBookmarkTap: () => _toggleBookmark(post.id),
+                        ),
                       );
                     },
                   ),
@@ -242,19 +293,20 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedBottomNavIndex,
         onTap: _onBottomNavTapped,
-        type: BottomNavigationBarType.fixed, // Agar semua item terlihat
-        selectedItemColor: const Color(0xFFF56A79), // Warna pink untuk item terpilih
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFFF56A79),
         unselectedItemColor: Colors.grey[600],
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-        unselectedLabelStyle: const TextStyle(fontSize: 12),
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 10), // Ukuran label disesuaikan
+        unselectedLabelStyle: const TextStyle(fontSize: 10), // Ukuran label disesuaikan
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled), // Menggunakan home_filled untuk yang terpilih
+            icon: Icon(Icons.home_outlined), // Default outlined
+            activeIcon: Icon(Icons.home_filled), // Filled saat aktif
             label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border_outlined),
-            activeIcon: Icon(Icons.bookmark), // Ikon aktif untuk bookmark
+            activeIcon: Icon(Icons.bookmark),
             label: 'Saved',
           ),
           BottomNavigationBarItem(
@@ -263,9 +315,9 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.arrow_upward_outlined),
-            activeIcon: Icon(Icons.arrow_upward),
-            label: 'Up',
+            icon: Icon(Icons.apps_outlined), // Mengganti ikon panah
+            activeIcon: Icon(Icons.apps),      // Mengganti ikon panah
+            label: 'Lainnya', // Mengganti label "Up"
           ),
         ],
       ),
