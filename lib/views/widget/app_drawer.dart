@@ -27,11 +27,8 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.home_outlined), // Icon untuk Home
             title: const Text('Beranda'),
             onTap: () {
-              Navigator.pop(context); // Tutup drawer
-              // Jika sudah di HomeScreen, tidak perlu navigasi,
-              // atau bisa menggunakan Navigator.pushReplacementNamed jika HomeScreen punya routeName
-              // Misalnya, jika Anda ada di halaman detail dan ingin kembali ke Home:
-              // Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+              // Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
             },
           ),
           ListTile(
