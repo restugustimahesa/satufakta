@@ -1,6 +1,7 @@
 // lib/views/home_screen.dart (atau path yang sesuai di proyek Anda)
 import 'package:flutter/material.dart';
 import 'package:satufakta/models/post_model.dart';
+import 'package:satufakta/views/profile_screen.dart';
 // Pastikan path ke widget dan utils sudah benar
 import 'package:satufakta/views/widget/post_card.dart'; // Diubah dari views/widget/post_card.dart
 import 'package:satufakta/views/widget/app_drawer.dart'; // Diubah dari views/widget/app_drawer.dart
@@ -148,9 +149,19 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       });
     } else if (index == 2) { // Profile
-       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Halaman Profil (Belum dibuat)')),
-      );
+    Navigator.push( // Gunakan push agar bisa kembali
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ProfileScreen(),
+        // Jika ProfileScreen memerlukan data user, kirim di sini:
+        // builder: (context) => ProfileScreen(user: _currentUserData),
+      ),
+    ).then((_) {
+      // Mungkin perlu refresh sesuatu di HomeScreen setelah kembali dari ProfileScreen
+      if (mounted) {
+        // setState(() {}); // Contoh refresh sederhana jika ada state yang berubah
+      }
+    });
     } else if (index == 3) { // Up Arrow/Lainnya
        ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Aksi Lainnya (Belum dibuat)')),
