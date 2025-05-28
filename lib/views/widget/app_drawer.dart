@@ -55,15 +55,6 @@ class AppDrawer extends StatelessWidget {
               // Tambahkan navigasi
             },
           ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.settings_outlined),
-            title: const Text('Pengaturan'),
-            onTap: () {
-              Navigator.pop(context);
-              // Tambahkan navigasi
-            },
-          ),
         ],
       ),
     );

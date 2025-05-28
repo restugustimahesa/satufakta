@@ -2,12 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:satufakta/models/category_page_models.dart';
 import 'package:satufakta/data/category_dummy_data.dart';
+import 'package:satufakta/views/profile_screen.dart';
 import 'package:satufakta/views/widget/category_grid_item.dart';
 import 'package:satufakta/views/category_articles_screen.dart';
 import 'package:satufakta/views/widget/app_drawer.dart'; // Impor AppDrawer
 import 'package:satufakta/views/home_screen.dart'; // Impor HomeScreen untuk navigasi
 
-class CategoriesScreen extends StatefulWidget { // Diubah menjadi StatefulWidget
+class CategoriesScreen extends StatefulWidget {
+  // Diubah menjadi StatefulWidget
   static const routeName = '/categories';
 
   const CategoriesScreen({super.key});
@@ -18,7 +20,8 @@ class CategoriesScreen extends StatefulWidget { // Diubah menjadi StatefulWidget
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _selectedBottomNavIndex = 0; // Indeks untuk BottomNavigationBar, sesuaikan jika perlu
+  int _selectedBottomNavIndex =
+      0; // Indeks untuk BottomNavigationBar, sesuaikan jika perlu
 
   // Fungsi untuk menangani tap pada BottomNavigationBar
   void _onBottomNavTapped(int index) {
@@ -29,25 +32,29 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       // Jika sudah di halaman kategori dan ada item Home, mungkin kembali ke HomeScreen
       // atau jika CategoriesScreen adalah bagian dari tab Home, tidak melakukan apa-apa.
       // Untuk contoh ini, kita navigasi ke HomeScreen jika belum di sana.
-      if (ModalRoute.of(context)?.settings.name != '/home') { // Asumsi '/home' adalah routeName HomeScreen
+      if (ModalRoute.of(context)?.settings.name != '/home') {
+        // Asumsi '/home' adalah routeName HomeScreen
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } else if (index == 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Halaman Bookmark (Belum dibuat)')),
-      );
+      Navigator.pushNamed(context, '/saved');
     } else if (index == 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Halaman Profil (Belum dibuat)')),
-      );
+      Navigator.push(
+        // Gunakan push agar bisa kembali
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfileScreen(),
+        ),
+      ).then((_) {
+        if (mounted) {
+          // setState(() {}); // Contoh refresh sederhana jika ada state yang berubah
+        }
+      });
     } else if (index == 3) {
-       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Aksi Lain (Belum dibuat)')),
-      );
+      _scaffoldKey.currentState?.openDrawer();
     }
     // Tambahkan logika navigasi lain jika diperlukan
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -79,15 +86,25 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Cari Kategori...', // Disesuaikan
-                      hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
+                      hintStyle: TextStyle(
+                        color: Colors.grey[500],
+                        fontSize: 14,
+                      ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 0,
+                      ),
                     ),
                     style: const TextStyle(fontSize: 14),
                     onSubmitted: (value) {
                       // Logika pencarian kategori
-                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Mencari kategori: $value (Belum diimplementasikan)')),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Mencari kategori: $value (Belum diimplementasikan)',
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -107,18 +124,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
-        itemBuilder: (ctx, i) => CategoryGridItem(
-          category: DUMMY_CATEGORIES_PAGE[i],
-          onTap: () {
-            Navigator.of(context).pushNamed(
-              CategoryArticlesScreen.routeName,
-              arguments: {
-                'id': DUMMY_CATEGORIES_PAGE[i].id,
-                'title': DUMMY_CATEGORIES_PAGE[i].title,
+        itemBuilder:
+            (ctx, i) => CategoryGridItem(
+              category: DUMMY_CATEGORIES_PAGE[i],
+              onTap: () {
+                Navigator.of(context).pushNamed(
+                  CategoryArticlesScreen.routeName,
+                  arguments: {
+                    'id': DUMMY_CATEGORIES_PAGE[i].id,
+                    'title': DUMMY_CATEGORIES_PAGE[i].title,
+                  },
+                );
               },
-            );
-          },
-        ),
+            ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedBottomNavIndex, // Indeks item yang aktif
@@ -126,13 +144,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFFF56A79), // Warna item aktif
         unselectedItemColor: Colors.grey[600],
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 10),
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 10,
+        ),
         unselectedLabelStyle: const TextStyle(fontSize: 10),
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border_outlined),
             activeIcon: Icon(Icons.bookmark),
@@ -145,7 +163,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.apps_outlined), // Mengganti ikon panah atas
-            activeIcon: Icon(Icons.apps),    // Mengganti ikon panah atas
+            activeIcon: Icon(Icons.apps), // Mengganti ikon panah atas
             label: 'Lainnya', // Mengganti label
           ),
         ],

@@ -1,17 +1,9 @@
-// lib/views/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:satufakta/views/widget/app_drawer.dart'; // Sesuaikan path jika berbeda
-import 'package:satufakta/views/utils/helper.dart';     // Sesuaikan path jika berbeda
-// Impor lain yang mungkin Anda perlukan, misalnya HomeScreen untuk navigasi
-// import 'package:satufakta/views/home_screen.dart';
-// import 'package:satufakta/views/saved_screen.dart';
+import 'package:satufakta/views/utils/helper.dart';
 
 class ProfileScreen extends StatefulWidget {
-  static const routeName = '/profile'; // Jika ingin diakses via named route
-
-  // Anda bisa menambahkan parameter jika perlu, misal UserProfile data
-  // final UserProfile user;
-  // const ProfileScreen({super.key, required this.user});
+  static const routeName = '/profile';
 
   const ProfileScreen({super.key});
 
@@ -24,33 +16,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Contoh data pengguna (ganti dengan data aktual jika ada)
   final String _userName = "Restu Gusti"; // Nama dari gambar referensi
-  final String _userAvatarUrl = 'assets/images/avatar.png'; // Path ke avatar pengguna
+  final String _userAvatarUrl =
+      'assets/images/avatar.png'; // Path ke avatar pengguna
 
   // Fungsi untuk menangani tap pada BottomNavigationBar
   void _onBottomNavTapped(int index, BuildContext context) {
-    // Navigasi berdasarkan index bottom nav
-    // Indeks 0 = Home, 1 = Saved, 2 = Profile, 3 = More/Up
-    if (index == 0) { // Home
+    if (index == 0) {
+      // Home
       if (ModalRoute.of(context)?.settings.name != '/home') {
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
-    } else if (index == 1) { // Saved
-      // Navigasi ke SavedScreen. Anda perlu memastikan SavedScreen dapat diakses
-      // dan menerima argumen yang benar jika diperlukan (misal dari state management)
-      // Contoh: Navigator.pushNamed(context, SavedScreen.routeName);
-      // Untuk saat ini, kita tampilkan pesan saja jika belum diimplementasikan
-       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Navigasi ke Halaman Tersimpan (perlu implementasi)')),
-      );
-    } else if (index == 2) { // Profile
+    } else if (index == 1) {
+      // Saved
+      Navigator.pushNamed(context, '/saved');
+    } else if (index == 2) {
+      // Profile
       // Sudah di halaman Profile
-    } else if (index == 3) { // More/Up
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Aksi Lainnya (Belum dibuat)')),
-      );
+    } else if (index == 3) {
+      // More/Up
+      _scaffoldKey.currentState?.openDrawer();
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +71,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Cari di Profil...',
-                      hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
+                      hintStyle: TextStyle(
+                        color: Colors.grey[500],
+                        fontSize: 14,
+                      ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 0,
+                      ),
                     ),
                     style: const TextStyle(fontSize: 14),
                     onSubmitted: (value) {
-                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Pencarian "$value" (belum diimplementasikan)')),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Pencarian "$value" (belum diimplementasikan)',
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -109,38 +105,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: <Widget>[
             // Breadcrumbs (sesuai gambar, namun bisa diganti dengan judul halaman)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: () {
-                       if (ModalRoute.of(context)?.settings.name != '/home') {
-                          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-                        }
+                      if (ModalRoute.of(context)?.settings.name != '/home') {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/home',
+                          (route) => false,
+                        );
+                      }
                     },
-                    child: Text('Home', style: TextStyle(color: Colors.grey[700], fontSize: 14))
+                    child: Text(
+                      'Home',
+                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                    ),
                   ),
                   Icon(Icons.chevron_right, color: Colors.grey[500], size: 18),
-                  Text('Profile', style: TextStyle(color: cBlack, fontSize: 14, fontWeight: FontWeight.w500)),
+                  Text(
+                    'Profile',
+                    style: TextStyle(
+                      color: cBlack,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               ),
             ),
 
             // Kartu Info Profil
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: Card(
                 elevation: 1.5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
                     children: <Widget>[
                       CircleAvatar(
                         radius: 35,
-                        backgroundImage: AssetImage(_userAvatarUrl), // Ganti dengan NetworkImage jika URL
-                        // backgroundColor: Colors.grey[300], // Fallback jika gambar tidak ada
-                        // child: AssetImage(_userAvatarUrl) == null ? Icon(Icons.person, size: 35, color: Colors.white) : null,
+                        backgroundImage: AssetImage(_userAvatarUrl),
                       ),
                       hsMedium, // Dari helper.dart
                       Expanded(
@@ -157,7 +173,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             vsSuperTiny,
                             Text(
                               "Lihat & edit profil", // Subtitle atau status
-                              style: TextStyle(fontSize: 13.0, color: Colors.grey[600]),
+                              style: TextStyle(
+                                fontSize: 13.0,
+                                color: Colors.grey[600],
+                              ),
                             ),
                           ],
                         ),
@@ -167,7 +186,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         padding: const EdgeInsets.all(8.0),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF56A79).withOpacity(0.1), // Warna pink transparan
+                          color: const Color(
+                            0xFFF56A79,
+                          ).withOpacity(0.1), // Warna pink transparan
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         child: Icon(
@@ -175,13 +196,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: const Color(0xFFF56A79), // Warna pink
                           size: 22,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-            vsMassive, // Beri ruang di bagian bawah
+            vsMassive,
           ],
         ),
       ),
@@ -191,7 +212,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFFF56A79),
         unselectedItemColor: Colors.grey[600],
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 10),
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 10,
+        ),
         unselectedLabelStyle: const TextStyle(fontSize: 10),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -228,10 +252,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return ListTile(
       leading: Icon(icon, color: textColor ?? Colors.grey[700], size: 22),
-      title: Text(title, style: TextStyle(fontSize: 15, color: textColor ?? cBlack, fontWeight: FontWeight.w500)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 15,
+          color: textColor ?? cBlack,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
       trailing: Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
       onTap: onTap,
-      contentPadding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 0), // Kurangi padding vertikal
+      contentPadding: EdgeInsets.symmetric(
+        vertical: 2.0,
+        horizontal: 0,
+      ), // Kurangi padding vertikal
     );
   }
 }

@@ -1,11 +1,8 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:satufakta/views/splash_screen.dart';
 import 'package:satufakta/views/login_screen.dart';
 import 'package:satufakta/views/home_screen.dart';
 import 'package:satufakta/views/resgister_screen.dart';
-
-// Impor baru untuk halaman kategori
 import 'package:satufakta/views/categories_screen.dart';
 import 'package:satufakta/views/category_articles_screen.dart';
 
@@ -49,7 +46,6 @@ class MyApp extends StatelessWidget {
           final args = settings.arguments as Map<String, String>?;
 
           if (args != null && args.containsKey('id') && args.containsKey('title')) {
-            // Argumen valid, navigasi ke CategoryArticlesScreen
             return MaterialPageRoute(
               builder: (context) {
                 // CategoryArticlesScreen akan mengambil argumennya sendiri
@@ -78,9 +74,6 @@ class MyApp extends StatelessWidget {
             );
           }
         }
-        // Jika nama rute tidak cocok dengan kondisi di atas, kembalikan null
-        // Ini akan menyebabkan Flutter mencari di 'routes' map atau menampilkan error jika tidak ditemukan sama sekali.
-        // Untuk rute yang tidak didefinisikan di sini, ini adalah perilaku yang diharapkan.
         return null;
       },
       debugShowCheckedModeBanner: false,

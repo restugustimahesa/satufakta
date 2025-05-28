@@ -1,14 +1,15 @@
 // lib/views/saved_screen.dart
 import 'package:flutter/material.dart';
-import 'package:satufakta/models/post_model.dart'; // Sesuaikan path jika berbeda
-import 'package:satufakta/views/widget/post_card.dart'; // Sesuaikan path jika berbeda
-import 'package:satufakta/views/widget/app_drawer.dart'; // Sesuaikan path jika berbeda
-import 'package:satufakta/views/utils/helper.dart';     // Sesuaikan path jika berbeda
+import 'package:satufakta/models/post_model.dart';
+import 'package:satufakta/views/profile_screen.dart';
+import 'package:satufakta/views/widget/post_card.dart';
+import 'package:satufakta/views/widget/app_drawer.dart';
+import 'package:satufakta/views/utils/helper.dart';    
 
 class SavedScreen extends StatefulWidget {
-  static const routeName = '/saved-posts'; // Jika ingin diakses via named route
-  final List<Post> allPosts; // Daftar semua post dari HomeScreen atau state management
-  final Function(String) onToggleBookmark; // Callback untuk toggle bookmark
+  static const routeName = '/saved-posts'; 
+  final List<Post> allPosts; 
+  final Function(String) onToggleBookmark; 
 
   const SavedScreen({
     super.key,
@@ -33,8 +34,6 @@ class _SavedScreenState extends State<SavedScreen> {
   @override
   void didUpdateWidget(SavedScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Jika daftar semua post berubah (misalnya setelah kembali dari halaman lain yang memodifikasinya),
-    // filter ulang daftar bookmark.
     if (widget.allPosts != oldWidget.allPosts) {
       _filterBookmarkedPosts();
     }
@@ -43,32 +42,32 @@ class _SavedScreenState extends State<SavedScreen> {
   void _filterBookmarkedPosts() {
     setState(() {
       _bookmarkedPosts = widget.allPosts.where((post) => post.isBookmarked).toList();
-      // Urutkan berdasarkan tanggal, yang terbaru di atas (opsional)
       _bookmarkedPosts.sort((a, b) => b.date.compareTo(a.date));
     });
   }
 
   void _handleToggleBookmark(String postId) {
-    widget.onToggleBookmark(postId); // Panggil callback dari HomeScreen
-    // Setelah status bookmark diubah di sumber aslinya (allPosts),
-    // kita perlu memfilter ulang untuk memperbarui tampilan di halaman ini.
+    widget.onToggleBookmark(postId);
     _filterBookmarkedPosts();
   }
 
   // Fungsi untuk menangani tap pada BottomNavigationBar
   void _onBottomNavTapped(int index, BuildContext context) {
-    // Navigasi berdasarkan index bottom nav
-    // Indeks 0 = Home, 1 = Saved, 2 = Profile, 3 = More/Up
     if (index == 0) { // Home
       if (ModalRoute.of(context)?.settings.name != '/home') {
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } else if (index == 1) { // Saved
-      // Sudah di halaman Saved
     } else if (index == 2) { // Profile
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Halaman Profil (Belum dibuat)')),
-      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfileScreen(),
+        ),
+      ).then((_) {
+        if (mounted) {
+        }
+      });
     } else if (index == 3) { // More/Up
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Aksi Lainnya (Belum dibuat)')),
