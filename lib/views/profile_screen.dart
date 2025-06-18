@@ -296,6 +296,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.blueAccent, size: 22), onPressed: () => _editArticle(article)),
+                            IconButton(icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 22), onPressed: () => _deleteArticle(article.id!)),
+                          ],
+                        ),
                       ),
                     );
                   },

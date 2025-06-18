@@ -1,4 +1,3 @@
-// lib/screens/add_edit_news_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/news_article.dart';
@@ -6,118 +5,169 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 
 class AddEditNewsScreen extends StatefulWidget {
-    final NewsArticle? article;
-    AddEditNewsScreen({this.article});
+  final NewsArticle? article;
+  const AddEditNewsScreen({this.article, Key? key}) : super(key: key);
 
-    @override
-    _AddEditNewsScreenState createState() => _AddEditNewsScreenState();
+  @override
+  _AddEditNewsScreenState createState() => _AddEditNewsScreenState();
 }
 
 class _AddEditNewsScreenState extends State<AddEditNewsScreen> {
-    final _formKey = GlobalKey<FormState>();
-    late String _title;
-    late String _content;
-    late String _author;
-    bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+  
+  // Controller untuk setiap field
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
+  late TextEditingController _summaryController;
+  late TextEditingController _categoryController;
+  // 1. Tambahkan TextEditingController baru untuk URL gambar
+  late TextEditingController _imageUrlController;
 
-    @override
-    void initState() {
-        super.initState();
-        _title = widget.article?.title ?? '';
-        _content = widget.article?.content ?? '';
-        _author = widget.article?.author ?? '';
-    }
+  bool _isLoading = false;
 
-    Future<void> _saveForm() async {
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi semua controller
+    _titleController = TextEditingController(text: widget.article?.title ?? '');
+    _contentController = TextEditingController(text: widget.article?.content ?? '');
+    _summaryController = TextEditingController(text: widget.article?.summary ?? '');
+    _categoryController = TextEditingController(text: widget.article?.category ?? '');
+    
+    // 2. Inisialisasi controller untuk imageUrl
+    // Jika sedang mengedit, isi dengan data yang ada. Jika tidak, kosongkan.
+    _imageUrlController = TextEditingController(text: widget.article?.featuredImageUrl ?? '');
+  }
+
+  @override
+  void dispose() {
+    // 5. Jangan lupa dispose semua controller untuk menghindari memory leak
+    _titleController.dispose();
+    _contentController.dispose();
+    _summaryController.dispose();
+    _categoryController.dispose();
+    _imageUrlController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveForm() async {
+    // Validasi form
     if (!_formKey.currentState!.validate()) return;
-    _formKey.currentState!.save();
+    
     setState(() { _isLoading = true; });
 
     final token = Provider.of<AuthService>(context, listen: false).token;
     final apiService = ApiService(token);
 
     try {
-        // ==============================================================
-        // === MODIFIKASI PEMBUATAN OBJEK NEWSARTICLE DI SINI ===
-        final newArticle = NewsArticle(
-            id: widget.article?.id,
-            title: _title, // Diambil dari form
-            content: _content, // Diambil dari form
-            
-            // TAMBAHKAN DATA UJI COBA (DUMMY) YANG VALID DI BAWAH INI
-            summary: "Ini adalah ringkasan berita uji coba yang panjangnya cukup.",
-            category: "Teknologi",
-            featuredImageUrl: "https://picsum.photos/200/300", // Gunakan URL gambar placeholder yang valid
-            tags: ["flutter", "testing", "api"],
-            isPublished: true,
-            // 'author' tidak perlu kita kirim, karena server akan menentukannya dari token
-        );
-        // ==============================================================
+      // 4. Sertakan nilai dari semua controller saat membuat objek NewsArticle
+      final newArticle = NewsArticle(
+        id: widget.article?.id,
+        title: _titleController.text,
+        content: _contentController.text,
+        summary: _summaryController.text,
+        category: _categoryController.text,
+        featuredImageUrl: _imageUrlController.text, // <-- Ambil nilai dari controller
+        tags: widget.article?.tags ?? ["general"], // Contoh, bisa dikembangkan
+        isPublished: widget.article?.isPublished ?? true, // Contoh, bisa dikembangkan
+      );
 
-        if (widget.article == null) {
-            // Create
-            await apiService.createNews(newArticle);
-        } else {
-            // Update
-            await apiService.updateNews(widget.article!.id!, newArticle);
-        }
-        Navigator.of(context).pop();
+      if (widget.article == null) {
+        // Mode Tambah
+        await apiService.createNews(newArticle);
+      } else {
+        // Mode Edit
+        await apiService.updateNews(widget.article!.id!, newArticle);
+      }
+      // Kembali ke halaman sebelumnya jika sukses
+      if (mounted) Navigator.of(context).pop();
+
     } catch (e) {
+      if(mounted) {
         showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-            title: Text('Terjadi Kesalahan'),
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Terjadi Kesalahan'),
             content: Text('Gagal menyimpan berita: $e'),
-            actions: [TextButton(child: Text('OK'), onPressed: () => Navigator.of(ctx).pop())],
-            ),
+            actions: [TextButton(child: const Text('OK'), onPressed: () => Navigator.of(ctx).pop())],
+          ),
         );
+      }
     }
 
     if(mounted) {
-        setState(() { _isLoading = false; });
+       setState(() { _isLoading = false; });
     }
-}
+  }
 
-    @override
-    Widget build(BuildContext context) {
-        return Scaffold(
-            appBar: AppBar(
-                title: Text(widget.article == null ? 'Tambah Berita' : 'Edit Berita'),
-                actions: [
-                    IconButton(icon: Icon(Icons.save), onPressed: _saveForm)
-                ],
-            ),
-            body: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Form(
-                        key: _formKey,
-                        child: ListView(
-                            children: [
-                                TextFormField(
-                                    initialValue: _title,
-                                    decoration: InputDecoration(labelText: 'Judul'),
-                                    validator: (value) => value!.isEmpty ? 'Judul tidak boleh kosong' : null,
-                                    onSaved: (value) => _title = value!,
-                                ),
-                                TextFormField(
-                                    initialValue: _content,
-                                    decoration: InputDecoration(labelText: 'Konten'),
-                                    maxLines: 5,
-                                    validator: (value) => value!.isEmpty ? 'Konten tidak boleh kosong' : null,
-                                    onSaved: (value) => _content = value!,
-                                ),
-                                TextFormField(
-                                    initialValue: _author,
-                                    decoration: InputDecoration(labelText: 'Penulis'),
-                                    validator: (value) => value!.isEmpty ? 'Penulis tidak boleh kosong' : null,
-                                    onSaved: (value) => _author = value!,
-                                ),
-                            ],
-                        ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.article == null ? 'Tambah Berita' : 'Edit Berita'),
+        actions: [
+          IconButton(icon: const Icon(Icons.save), onPressed: _saveForm, tooltip: 'Simpan')
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(labelText: 'Judul', border: OutlineInputBorder()),
+                      validator: (value) => (value == null || value.isEmpty) ? 'Judul tidak boleh kosong' : null,
                     ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _summaryController,
+                      decoration: const InputDecoration(labelText: 'Ringkasan (Summary)', border: OutlineInputBorder()),
+                      maxLines: 3,
+                      validator: (value) => (value != null && value.length < 10) ? 'Ringkasan minimal 10 karakter' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _contentController,
+                      decoration: const InputDecoration(labelText: 'Konten Lengkap', border: OutlineInputBorder()),
+                      maxLines: 8,
+                       validator: (value) => (value != null && value.length < 10) ? 'Konten minimal 10 karakter' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // 3. Tambahkan TextFormField baru untuk URL Gambar
+                    TextFormField(
+                      controller: _imageUrlController,
+                      decoration: const InputDecoration(
+                        labelText: 'URL Gambar Utama',
+                        hintText: 'https://contoh.com/gambar.jpg',
+                        border: OutlineInputBorder()
+                      ),
+                      keyboardType: TextInputType.url, // Keyboard khusus untuk URL
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'URL Gambar tidak boleh kosong';
+                        }
+                        if (!value.startsWith('http')) {
+                          return 'Masukkan URL yang valid (diawali http/https)';
+                        }
+                        return null;
+                      },
+                    ),
+                    
+                    const SizedBox(height: 16),
+                     TextFormField(
+                      controller: _categoryController,
+                      decoration: const InputDecoration(labelText: 'Kategori', border: OutlineInputBorder()),
+                      validator: (value) => (value == null || value.isEmpty) ? 'Kategori tidak boleh kosong' : null,
+                    ),
+                  ],
                 ),
-        );
-    }
+              ),
+            ),
+    );
+  }
 }
