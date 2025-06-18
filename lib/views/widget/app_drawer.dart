@@ -1,5 +1,6 @@
 // lib/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
+import 'package:satufakta/views/about_screen.dart';
 import 'package:satufakta/views/categories_screen.dart'; // Impor halaman kategori
 
 class AppDrawer extends StatelessWidget {
@@ -40,19 +41,11 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.pages_outlined),
-            title: const Text('Halaman'),
-            onTap: () {
-              Navigator.pop(context);
-              // Tambahkan navigasi
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('Tentang Kami'),
             onTap: () {
               Navigator.pop(context);
-              // Tambahkan navigasi
+              Navigator.pushNamed(context, AboutScreen.routeName);
             },
           ),
         ],

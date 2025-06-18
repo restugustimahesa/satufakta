@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:satufakta/views/about_screen.dart';
 import 'package:satufakta/views/splash_screen.dart';
 import 'package:satufakta/views/login_screen.dart';
 import 'package:satufakta/views/home_screen.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/register': (ctx) => const ResgisterScreen(),
         '/home': (ctx) => const HomeScreen(),
         CategoriesScreen.routeName: (ctx) => const CategoriesScreen(),
+        AboutScreen.routeName: (ctx) => const AboutScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == CategoryArticlesScreen.routeName) {
