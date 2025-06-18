@@ -1,11 +1,12 @@
 // lib/pages/post_detail_page.dart
 import 'package:flutter/material.dart';
+import 'package:satufakta/models/news_article.dart';
 import 'package:satufakta/models/post_model.dart';
 import 'package:intl/intl.dart';
 import 'package:satufakta/views/utils/helper.dart';
 
 class PostDetailPage extends StatelessWidget {
-  final Post post;
+  final NewsArticle post;
 
   const PostDetailPage({super.key, required this.post});
 
@@ -39,10 +40,21 @@ class PostDetailPage extends StatelessWidget {
                   ),
                   vsLarge,
                   Image.network(
-                    post.imageUrl,
+                    '${post.featuredImageUrl}',
+                    height: 200, // Ukuran disesuaikan
                     width: double.infinity,
-                    height: 250,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        alignment: Alignment.center,
+                        height: 200,
+                        color: Colors.grey[300],
+                        child: Icon(
+                          Icons.broken_image,
+                          color: Colors.grey[600],
+                        ),
+                      );
+                    },
                   ),
                   vsMedium,
                   const SizedBox(height: 8.0),
@@ -60,15 +72,16 @@ class PostDetailPage extends StatelessWidget {
                                 color: Colors.grey[600],
                               ),
                               hsMedium,
-                              Text(
-                                DateFormat(
-                                  'MMMM d, yyyy ・ hh:mm a',
-                                ).format(post.date),
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
+                              if (post.createdAt != null)
+                                Text(
+                                  DateFormat(
+                                    'd MMM yyyy',
+                                  ).format(post.createdAt!),
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12.0,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                           hsMassive,
@@ -153,17 +166,13 @@ class PostDetailPage extends StatelessWidget {
                   vsMedium,
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 36,
-                        backgroundImage: NetworkImage(post.author.avatarUrl),
-                      ),
                       vsSmall,
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           hsMedium,
                           Text(
-                            post.author.name,
+                            post.author!,
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 14.0,
@@ -188,7 +197,6 @@ class PostDetailPage extends StatelessWidget {
                         ],
                       ),
                       vsMedium,
-                      
                     ],
                   ),
                 ],

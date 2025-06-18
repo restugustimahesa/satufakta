@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:satufakta/services/auth_service.dart';
+import 'package:satufakta/services/bookmark_service.dart';
+import 'package:satufakta/services/news_service.dart';
 import 'package:satufakta/views/about_screen.dart';
 import 'package:satufakta/views/splash_screen.dart';
 import 'package:satufakta/views/login_screen.dart';
@@ -17,8 +19,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (ctx) => AuthService(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (ctx) => AuthService()),
+        ChangeNotifierProvider(create: (ctx) => BookmarkService()),
+        ChangeNotifierProvider(create: (ctx) => NewsService()),
+      ],
       child: MaterialApp(
         title: 'Satu Fakta',
         theme: ThemeData(

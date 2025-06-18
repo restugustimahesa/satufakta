@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:satufakta/models/news_article.dart';
+import 'package:satufakta/services/api_service.dart';
 import 'package:satufakta/services/auth_service.dart';
+import 'package:satufakta/views/add_edit_news_screen.dart';
+import 'package:satufakta/views/home_screen.dart';
+import 'package:satufakta/views/saved_screen.dart';
 import 'package:satufakta/views/splash_screen.dart';
-import 'package:satufakta/views/widget/app_drawer.dart'; // Sesuaikan path jika berbeda
-import 'package:satufakta/views/utils/helper.dart';
+import 'package:satufakta/views/widget/app_drawer.dart';
 
 class ProfileScreen extends StatefulWidget {
-  static const routeName = '/profile';
-
+  // Menghapus routeName karena navigasi tidak lagi menggunakan nama
   const ProfileScreen({super.key});
 
   @override
@@ -16,40 +19,108 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late Future<List<NewsArticle>> _myNewsFuture;
 
-  // Contoh data pengguna (ganti dengan data aktual jika ada)
-  final String _userName = "Restu Gusti"; // Nama dari gambar referensi
-  final String _userAvatarUrl =
-      'assets/images/avatar.png'; // Path ke avatar pengguna
+  @override
+  void initState() {
+    super.initState();
+    _loadMyNews();
+  }
 
-  // Fungsi untuk menangani tap pada BottomNavigationBar
-  void _onBottomNavTapped(int index, BuildContext context) {
+  // Fungsi untuk memuat atau me-refresh daftar berita milik user
+  void _loadMyNews() {
+    final token = Provider.of<AuthService>(context, listen: false).token;
+    setState(() {
+      _myNewsFuture = ApiService(token).getMyNews();
+    });
+  }
+
+  // Fungsi untuk navigasi ke halaman edit
+  void _editArticle(NewsArticle article) {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) => AddEditNewsScreen(article: article),
+          ),
+        )
+        .then((_) => _loadMyNews());
+  }
+
+  // Fungsi untuk menghapus artikel
+  Future<void> _deleteArticle(String articleId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Konfirmasi Hapus'),
+            content: const Text(
+              'Apakah Anda yakin ingin menghapus berita ini?',
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Batal'),
+                onPressed: () => Navigator.of(ctx).pop(false),
+              ),
+              TextButton(
+                child: const Text('Hapus'),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                onPressed: () => Navigator.of(ctx).pop(true),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final token = Provider.of<AuthService>(context, listen: false).token;
+        await ApiService(token).deleteNews(articleId);
+        _loadMyNews(); // Refresh daftar berita
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal menghapus berita: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  // Mengadopsi navigasi Bottom Nav dari file Anda
+  void _onBottomNavTapped(int index) {
     if (index == 0) {
       // Home
-      if (ModalRoute.of(context)?.settings.name != '/home') {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
     } else if (index == 1) {
       // Saved
-      Navigator.pushNamed(context, '/saved');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SavedScreen()),
+      );
     } else if (index == 2) {
       // Profile
-      // Sudah di halaman Profile
+      // Sudah di halaman ini
     } else if (index == 3) {
-      // More/Up
+      // Lainnya
       _scaffoldKey.currentState?.openDrawer();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AuthService>(context, listen: false).user;
-    // Index untuk BottomNavigationBar di halaman ini adalah 2 (Profile)
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.user;
     const int currentBottomNavIndex = 2;
 
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.grey[100],
+      // Menggunakan AppBar dari desain Anda
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
@@ -65,147 +136,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(8.0),
             ),
-            child: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 10.0, right: 4.0),
-                  child: Icon(Icons.search, color: Colors.grey[700], size: 20),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari di Profil...',
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Colors.grey[700],
+                  size: 20,
                 ),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Cari di Profil...',
-                      hintStyle: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 14,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 10.0,
-                        horizontal: 0,
-                      ),
-                    ),
-                    style: const TextStyle(fontSize: 14),
-                    onSubmitted: (value) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Pencarian "$value" (belum diimplementasikan)',
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
+              ),
             ),
           ),
         ),
       ),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Breadcrumbs (sesuai gambar, namun bisa diganti dengan judul halaman)
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 12.0,
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (ModalRoute.of(context)?.settings.name != '/home') {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/home',
-                          (route) => false,
-                        );
-                      }
-                    },
-                    child: Text(
-                      'Home',
-                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                    ),
+            // Kartu Info Profil dari desain Anda, dengan data dinamis
+            if (user != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                child: Card(
+                  elevation: 1.5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
-                  Icon(Icons.chevron_right, color: Colors.grey[500], size: 18),
-                  Text(
-                    'Profile',
-                    style: TextStyle(
-                      color: cBlack,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Kartu Info Profil
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Card(
-                elevation: 1.5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: <Widget>[
-                      CircleAvatar(
-                        radius: 35,
-                        backgroundImage: AssetImage(_userAvatarUrl),
-                      ),
-                      hsMedium, // Dari helper.dart
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              user!.fullName,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            vsSuperTiny,
-                            Text(
-                              "Lihat & edit profil", // Subtitle atau status
-                              style: TextStyle(
-                                fontSize: 13.0,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: <Widget>[
+                        CircleAvatar(
+                          radius: 35,
+                          backgroundImage:
+                              user.avatarUrl != null
+                                  ? NetworkImage(user.avatarUrl!)
+                                  : null,
+                          child:
+                              user.avatarUrl == null
+                                  ? Text(
+                                    user.firstName[0].toUpperCase(),
+                                    style: const TextStyle(fontSize: 30),
+                                  )
+                                  : null,
                         ),
-                      ),
-                      hsSmall,
-                      // Tombol/Ikon di sisi kanan kartu (seperti pada gambar)
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: const Color(
-                            0xFFF56A79,
-                          ).withOpacity(0.1), // Warna pink transparan
-                          borderRadius: BorderRadius.circular(20.0),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                user.fullName,
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Lihat & kelola berita Anda",
+                                style: TextStyle(
+                                  fontSize: 13.0,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.logout_sharp,
-                          ), // Atau Icons.edit_outlined
-                          color: const Color(0xFFF56A79),
-                          iconSize: 22, // Warna pink
+                        IconButton(
+                          icon: const Icon(
+                            Icons.logout,
+                            color: Color(0xFFF56A79),
+                          ),
                           onPressed: () {
-                            Provider.of<AuthService>(
-                              context,
-                              listen: false,
-                            ).logout();
+                            authService.logout();
                             Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
                                 builder: (context) => SplashScreen(),
@@ -213,20 +220,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               (Route<dynamic> route) => false,
                             );
                           },
+                          tooltip: 'Logout',
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
+
+            // Judul untuk daftar berita
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+              child: Text(
+                "Berita yang Saya Buat",
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              ),
             ),
-            vsMassive,
+
+            // FutureBuilder untuk menampilkan daftar berita
+            FutureBuilder<List<NewsArticle>>(
+              future: _myNewsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: Text('Anda belum membuat berita apapun.'),
+                    ),
+                  );
+                }
+
+                final myNewsList = snapshot.data!;
+                // ListView ditaruh di dalam Column, perlu shrinkWrap dan physics
+                return ListView.builder(
+                  // Trik penting untuk ListView di dalam Column/SingleChildScrollView
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: myNewsList.length,
+                  itemBuilder: (context, index) {
+                    final article = myNewsList[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
+                      child: ListTile(
+                        leading:
+                            (article.featuredImageUrl != null &&
+                                    article.featuredImageUrl!.isNotEmpty)
+                                ? SizedBox(
+                                  width: 60,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: Image.network(
+                                      article.featuredImageUrl!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                )
+                                : const Icon(Icons.broken_image, size: 40),
+                        title: Text(
+                          article.title,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 20), // Memberi sedikit ruang di bawah
           ],
         ),
       ),
+      // Menggunakan BottomNavigationBar dari desain Anda
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentBottomNavIndex, // Item "Profile" aktif
-        onTap: (index) => _onBottomNavTapped(index, context),
+        currentIndex: currentBottomNavIndex,
+        onTap: (index) => _onBottomNavTapped(index),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFFF56A79),
         unselectedItemColor: Colors.grey[600],
@@ -248,7 +331,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person), // Ikon aktif untuk Profile
+            activeIcon: Icon(Icons.person),
             label: 'Profile',
           ),
           BottomNavigationBarItem(
@@ -258,32 +341,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  // Helper widget untuk membuat item opsi profil
-  Widget _buildProfileOptionItem({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    Color? textColor,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: textColor ?? Colors.grey[700], size: 22),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 15,
-          color: textColor ?? cBlack,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
-      onTap: onTap,
-      contentPadding: EdgeInsets.symmetric(
-        vertical: 2.0,
-        horizontal: 0,
-      ), // Kurangi padding vertikal
     );
   }
 }

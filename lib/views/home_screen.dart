@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:satufakta/models/news_article.dart';
 import 'package:satufakta/models/post_model.dart';
+import 'package:satufakta/services/api_service.dart';
+import 'package:satufakta/services/auth_service.dart';
+import 'package:satufakta/services/bookmark_service.dart';
+import 'package:satufakta/services/news_service.dart';
+import 'package:satufakta/views/post_detail_page.dart';
 import 'package:satufakta/views/profile_screen.dart';
 import 'package:satufakta/views/widget/post_card.dart';
 import 'package:satufakta/views/widget/app_drawer.dart';
@@ -15,6 +23,36 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // late Future<List<NewsArticle>> _newsFuture;
+  // List<NewsArticle> _newsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Panggil _loadNews dari service
+    // Gunakan addPostFrameCallback untuk memastikan context sudah siap
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final token = Provider.of<AuthService>(context, listen: false).token;
+      Provider.of<NewsService>(context, listen: false).fetchAllNews(token);
+      Provider.of<BookmarkService>(context, listen: false).loadBookmarks();
+    });
+  }
+
+  //   void _loadNews() {
+  //   final token = Provider.of<AuthService>(context, listen: false).token;
+  //   setState(() {
+  //     _newsFuture = ApiService(token).getNews();
+  //     // Kita simpan hasilnya ke _newsList saat future selesai
+  //     _newsFuture.then((value) {
+  //       if(mounted) {
+  //         setState(() {
+  //           _newsList = value;
+  //         });
+  //       }
+  //     });
+  //   });
+  // }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedBottomNavIndex = 0;
   String _currentPostType = 'Postingan Populer';
@@ -24,74 +62,73 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Path asset Anda
   final String _sampleImageUrl1 = 'assets/images/news1.jpg';
-  final String _sampleImageUrl2 =
-      'assets/images/news1.jpg'; 
+  final String _sampleImageUrl2 = 'assets/images/news1.jpg';
   final String _sampleImageUrl3 = 'assets/images/news2.jpeg';
   final String _sampleAvatarUrl = 'assets/images/avatar.png';
 
-  @override
-  void initState() {
-    super.initState();
-    _allPosts = [
-      Post(
-        id: '1',
-        title: 'Exploring the Serene Lakes',
-        content:
-            'Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor incididunt ut labore et dolore magna aliqua.',
-        imageUrl: _sampleImageUrl1,
-        author: Author(
-          name: 'Diar',
-          avatarUrl: _sampleAvatarUrl,
-        ),
-        date: DateTime(2025, 7, 14),
-        category: 'popular',
-        isBookmarked: false,
-      ),
-      Post(
-        id: '2',
-        title: 'Mountain Vistas & Adventure',
-        content:
-            'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        imageUrl: _sampleImageUrl2,
-        author: Author(
-          name: 'Restu',
-          avatarUrl: _sampleAvatarUrl,
-        ),
-        date: DateTime(2025, 7, 12),
-        category: 'popular',
-        isBookmarked: true,
-      ),
-      Post(
-        id: '3',
-        title: 'Forest Trails and Wildlife',
-        content:
-            'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
-        imageUrl: _sampleImageUrl3,
-        author: Author(
-          name: 'Jembar',
-          avatarUrl: _sampleAvatarUrl,
-        ),
-        date: DateTime(2025, 5, 20),
-        category: 'new',
-        isBookmarked: false,
-      ),
-      Post(
-        id: '4',
-        title: 'City Skylines at Night',
-        content:
-            'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-        imageUrl: _sampleImageUrl3,
-        author: Author(
-          name: 'KDM',
-          avatarUrl: _sampleAvatarUrl,
-        ),
-        date: DateTime(2025, 5, 15),
-        category: 'new',
-        isBookmarked: false,
-      ),
-    ];
-    _filterPosts();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _allPosts = [
+  //     Post(
+  //       id: '1',
+  //       title: 'Exploring the Serene Lakes',
+  //       content:
+  //           'Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor incididunt ut labore et dolore magna aliqua.',
+  //       imageUrl: _sampleImageUrl1,
+  //       author: Author(
+  //         name: 'Diar',
+  //         avatarUrl: _sampleAvatarUrl,
+  //       ),
+  //       date: DateTime(2025, 7, 14),
+  //       category: 'popular',
+  //       isBookmarked: false,
+  //     ),
+  //     Post(
+  //       id: '2',
+  //       title: 'Mountain Vistas & Adventure',
+  //       content:
+  //           'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+  //       imageUrl: _sampleImageUrl2,
+  //       author: Author(
+  //         name: 'Restu',
+  //         avatarUrl: _sampleAvatarUrl,
+  //       ),
+  //       date: DateTime(2025, 7, 12),
+  //       category: 'popular',
+  //       isBookmarked: true,
+  //     ),
+  //     Post(
+  //       id: '3',
+  //       title: 'Forest Trails and Wildlife',
+  //       content:
+  //           'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+  //       imageUrl: _sampleImageUrl3,
+  //       author: Author(
+  //         name: 'Jembar',
+  //         avatarUrl: _sampleAvatarUrl,
+  //       ),
+  //       date: DateTime(2025, 5, 20),
+  //       category: 'new',
+  //       isBookmarked: false,
+  //     ),
+  //     Post(
+  //       id: '4',
+  //       title: 'City Skylines at Night',
+  //       content:
+  //           'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+  //       imageUrl: _sampleImageUrl3,
+  //       author: Author(
+  //         name: 'KDM',
+  //         avatarUrl: _sampleAvatarUrl,
+  //       ),
+  //       date: DateTime(2025, 5, 15),
+  //       category: 'new',
+  //       isBookmarked: false,
+  //     ),
+  //   ];
+  //   _filterPosts();
+  // }
 
   void _filterPosts() {
     if (_currentPostType == 'Postingan Populer') {
@@ -135,7 +172,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onBottomNavTapped(int index) {
-
     setState(() {
       _selectedBottomNavIndex = index;
     });
@@ -145,13 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Saved/Bookmark
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder:
-              (context) => SavedScreen(
-                allPosts: _allPosts,
-                onToggleBookmark: _toggleBookmark,
-              ),
-        ),
+        MaterialPageRoute(builder: (context) => SavedScreen()),
       ).then((_) {
         if (mounted) {
           _filterPosts();
@@ -162,9 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Navigator.push(
         // Gunakan push agar bisa kembali
         context,
-        MaterialPageRoute(
-          builder: (context) => const ProfileScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const ProfileScreen()),
       ).then((_) {
         if (mounted) {
           // setState(() {}); // Contoh refresh sederhana jika ada state yang berubah
@@ -178,6 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.grey[100],
@@ -241,81 +270,253 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       drawer: const AppDrawer(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Consumer<NewsService>(
+        builder: (context, newsService, child) {
+          if (newsService.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (newsService.allNews.isEmpty) {
+            return const Center(
+              child: Text('Tidak ada berita yang ditemukan.'),
+            );
+          }
+          final newsList = newsService.allNews;
+          return RefreshIndicator(
+            onRefresh: () async {
+              final token =
+                  Provider.of<AuthService>(context, listen: false).token;
+              await newsService.fetchAllNews(token);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 20,
-                      color: const Color(0xFFF56A79),
-                      margin: const EdgeInsets.only(right: 8.0),
-                    ),
-                    Text(
-                      _currentPostType,
-                      style: const TextStyle(
-                        fontSize: 18.0, // Disesuaikan dari 20.0
-                        fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        children: [
+                          Container(
+                            width: 4,
+                            height: 20,
+                            color: const Color(0xFFF56A79),
+                            margin: const EdgeInsets.only(right: 8.0),
+                          ),
+                          Text(
+                            _currentPostType,
+                            style: const TextStyle(
+                              fontSize: 18.0, // Disesuaikan dari 20.0
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      Row(
+                        children: <Widget>[
+                          IconButton(
+                            icon: const Icon(
+                              Icons.chevron_left,
+                              size: 28,
+                            ), // Ukuran ikon disesuaikan
+                            onPressed: _togglePostType,
+                            tooltip:
+                                'Previous Type', // Tooltip lebih deskriptif
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.chevron_right,
+                              size: 28,
+                            ), // Ukuran ikon disesuaikan
+                            onPressed: _togglePostType,
+                            tooltip: 'Next Type', // Tooltip lebih deskriptif
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                Row(
-                  children: <Widget>[
-                    IconButton(
-                      icon: const Icon(
-                        Icons.chevron_left,
-                        size: 28,
-                      ), // Ukuran ikon disesuaikan
-                      onPressed: _togglePostType,
-                      tooltip: 'Previous Type', // Tooltip lebih deskriptif
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.chevron_right,
-                        size: 28,
-                      ), // Ukuran ikon disesuaikan
-                      onPressed: _togglePostType,
-                      tooltip: 'Next Type', // Tooltip lebih deskriptif
-                    ),
-                  ],
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(top: 0, bottom: 8.0),
+                    itemCount: newsList.length,
+                    itemBuilder: (ctx, index) {
+                      final post = newsList[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 0,
+                        ), // Atur jarak antar PostCard jika perlu
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => PostDetailPage(post: post),
+                              ),
+                            );
+                          },
+                          child: Column(
+                            children: [
+                              Card(
+                                elevation: 2.0,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 8.0,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    // if (post.featuredImageUrl != null &&
+                                    // post.featuredImageUrl!.isNotEmpty)
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(12.0),
+                                      ),
+                                      child: Image.network(
+                                        '${post.featuredImageUrl}',
+                                        height: 200, // Ukuran disesuaikan
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return Container(
+                                            alignment: Alignment.center,
+                                            height: 200,
+                                            color: Colors.grey[300],
+                                            child: Icon(
+                                              Icons.broken_image,
+                                              color: Colors.grey[600],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text(
+                                            post.title,
+                                            style: const TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 6.0),
+                                          Text(
+                                            post.summary!,
+                                            style: TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.grey[700],
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 8),
+
+                                          Text(
+                                            'Oleh: ${post.author}',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12.0),
+                                          Row(
+                                            children: <Widget>[
+                                              const SizedBox(width: 8.0),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  if (post.createdAt != null)
+                                                    Text(
+                                                      DateFormat(
+                                                        'd MMM yyyy',
+                                                      ).format(post.createdAt!),
+                                                      style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 12.0,
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                              const Spacer(),
+                                              Consumer<BookmarkService>(
+                                                builder:
+                                                    (
+                                                      ctx,
+                                                      bookmarkService,
+                                                      child,
+                                                    ) => IconButton(
+                                                      icon: Icon(
+                                                        bookmarkService
+                                                                .isBookmarked(
+                                                                  post.id!,
+                                                                )
+                                                            ? Icons.bookmark
+                                                            : Icons
+                                                                .bookmark_border_outlined,
+                                                        color:
+                                                            bookmarkService
+                                                                    .isBookmarked(
+                                                                      post.id!,
+                                                                    )
+                                                                ? Theme.of(
+                                                                  context,
+                                                                ).primaryColor
+                                                                : Colors.grey,
+                                                      ),
+                                                      onPressed: () {
+                                                        bookmarkService
+                                                            .toggleBookmark(
+                                                              post.id!,
+                                                            );
+                                                      },
+                                                    ),
+                                              ),
+                                              // IconButton(
+                                              //   icon: Icon(
+                                              //     post.isBookmarked
+                                              //         ? Icons.bookmark
+                                              //         : Icons.bookmark_border,
+                                              //     color:
+                                              //         post.isBookmarked
+                                              //             ? const Color(0xFFF56A79)
+                                              //             : Colors.grey,
+                                              //   ),
+                                              //   onPressed: onBookmarkTap,
+                                              // ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
-          ),
-          Expanded(
-            child:
-                _displayPosts.isEmpty
-                    ? Center(
-                      child: Text(
-                        'Tidak ada postingan untuk kategori "$_currentPostType"',
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                      ),
-                    )
-                    : ListView.builder(
-                      padding: const EdgeInsets.only(top: 0, bottom: 8.0),
-                      itemCount: _displayPosts.length,
-                      itemBuilder: (context, index) {
-                        final post = _displayPosts[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: 0,
-                          ), // Atur jarak antar PostCard jika perlu
-                          child: PostCard(
-                            post: post,
-                            onBookmarkTap: () => _toggleBookmark(post.id),
-                          ),
-                        );
-                      },
-                    ),
-          ),
-        ],
+          );
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedBottomNavIndex,
@@ -347,8 +548,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.apps_outlined), 
-            activeIcon: Icon(Icons.apps), 
+            icon: Icon(Icons.apps_outlined),
+            activeIcon: Icon(Icons.apps),
             label: 'Lainnya', // Mengganti label "Up"
           ),
         ],
