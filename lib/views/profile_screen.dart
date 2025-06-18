@@ -46,6 +46,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .then((_) => _loadMyNews());
   }
 
+  void _navigateToAddEditScreen([NewsArticle? article]) {
+        Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (ctx) => AddEditNewsScreen(article: article),
+            ),
+        ).then((_) => _loadMyNews()); // Refresh list after returning
+    }
+
   // Fungsi untuk menghapus artikel
   Future<void> _deleteArticle(String articleId) async {
     final confirmed = await showDialog<bool>(
@@ -299,8 +307,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.blueAccent, size: 22), onPressed: () => _editArticle(article)),
-                            IconButton(icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 22), onPressed: () => _deleteArticle(article.id!)),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.edit_outlined,
+                                color: Colors.blueAccent,
+                                size: 22,
+                              ),
+                              onPressed: () => _editArticle(article),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.redAccent,
+                                size: 22,
+                              ),
+                              onPressed: () => _deleteArticle(article.id!),
+                            ),
                           ],
                         ),
                       ),
@@ -329,17 +351,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home_filled),
-            label: 'Home',
+            label: 'Beranda',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border_outlined),
             activeIcon: Icon(Icons.bookmark),
-            label: 'Saved',
+            label: 'Disimpan',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Profil',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.apps_outlined),
@@ -347,6 +369,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label: 'Lainnya',
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => _navigateToAddEditScreen(),
       ),
     );
   }

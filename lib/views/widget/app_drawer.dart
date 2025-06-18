@@ -13,9 +13,7 @@ class AppDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-            ),
+            decoration: BoxDecoration(color: Colors.grey[100]),
             child: Center(
               child: Image.asset(
                 'assets/images/logo.png',
@@ -29,7 +27,11 @@ class AppDrawer extends StatelessWidget {
             title: const Text('Beranda'),
             onTap: () {
               // Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/home',
+                (route) => false,
+              );
             },
           ),
           ListTile(
@@ -37,7 +39,10 @@ class AppDrawer extends StatelessWidget {
             title: const Text('Semua Kategori'), // Diubah teksnya
             onTap: () {
               Navigator.pop(context); // Tutup drawer
-              Navigator.pushNamed(context, CategoriesScreen.routeName); // Navigasi ke halaman Kategori
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CategoriesScreen()),
+              ); // Navigasi ke halaman Kategori
             },
           ),
           ListTile(

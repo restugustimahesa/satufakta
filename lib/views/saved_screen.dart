@@ -8,7 +8,7 @@ import 'package:satufakta/views/post_detail_page.dart';
 import 'package:satufakta/views/profile_screen.dart';
 import 'package:satufakta/views/widget/app_drawer.dart';
 // Pastikan path import AppDrawer sudah benar sesuai struktur proyek Anda
-// import 'package:test_api/widgets/app_drawer.dart'; 
+// import 'package:test_api/widgets/app_drawer.dart';
 
 // Diubah kembali menjadi StatefulWidget untuk mengelola ScaffoldKey
 class SavedScreen extends StatefulWidget {
@@ -24,19 +24,23 @@ class _SavedScreenState extends State<SavedScreen> {
 
   // Fungsi untuk menangani navigasi Bottom Nav
   void _onBottomNavTapped(int index) {
-    if (index == 0) { // Home
+    if (index == 0) {
+      // Home
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
-    } else if (index == 1) { // Saved
+    } else if (index == 1) {
+      // Saved
       // Sudah di halaman ini
-    } else if (index == 2) { // Profile
+    } else if (index == 2) {
+      // Profile
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ProfileScreen()),
       );
-    } else if (index == 3) { // Lainnya
+    } else if (index == 3) {
+      // Lainnya
       _scaffoldKey.currentState?.openDrawer();
     }
   }
@@ -67,7 +71,11 @@ class _SavedScreenState extends State<SavedScreen> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Cari di Berita Tersimpan...',
-                prefixIcon: Icon(Icons.search, color: Colors.grey[700], size: 20),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Colors.grey[700],
+                  size: 20,
+                ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
               ),
@@ -81,16 +89,21 @@ class _SavedScreenState extends State<SavedScreen> {
       // Bagian body (Consumer2) tidak berubah, karena logikanya sudah benar.
       body: Consumer2<BookmarkService, NewsService>(
         builder: (context, bookmarkService, newsService, child) {
-          final bookmarkedArticles = newsService.allNews
-              .where((article) => bookmarkService.isBookmarked(article.id!))
-              .toList();
+          final bookmarkedArticles =
+              newsService.allNews
+                  .where((article) => bookmarkService.isBookmarked(article.id!))
+                  .toList();
 
           if (bookmarkedArticles.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.bookmark_border_rounded, size: 80, color: Colors.grey[400]),
+                  Icon(
+                    Icons.bookmark_border_rounded,
+                    size: 80,
+                    color: Colors.grey[400],
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Belum Ada Berita Disimpan',
@@ -114,23 +127,28 @@ class _SavedScreenState extends State<SavedScreen> {
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  leading: (article.featuredImageUrl != null && article.featuredImageUrl!.isNotEmpty)
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.network(
-                            article.featuredImageUrl!,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading:
+                      (article.featuredImageUrl != null &&
+                              article.featuredImageUrl!.isNotEmpty)
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              article.featuredImageUrl!,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                          : Container(
                             width: 80,
                             height: 80,
-                            fit: BoxFit.cover,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.image_not_supported),
                           ),
-                        )
-                      : Container(
-                          width: 80,
-                          height: 80,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.image_not_supported),
-                        ),
                   title: Text(
                     article.title,
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -142,7 +160,10 @@ class _SavedScreenState extends State<SavedScreen> {
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.bookmark, color: Theme.of(context).primaryColor),
+                    icon: Icon(
+                      Icons.bookmark,
+                      color: Theme.of(context).primaryColor,
+                    ),
                     tooltip: 'Hapus dari Bookmark',
                     onPressed: () {
                       bookmarkService.toggleBookmark(article.id!);
@@ -170,10 +191,26 @@ class _SavedScreenState extends State<SavedScreen> {
         selectedItemColor: const Color(0xFFF56A79),
         unselectedItemColor: Colors.grey[600],
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_filled), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark_border_outlined), activeIcon: Icon(Icons.bookmark), label: 'Saved'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.apps_outlined), activeIcon: Icon(Icons.apps), label: 'Lainnya'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home_filled),
+            label: 'Beranda',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bookmark_border_outlined),
+            activeIcon: Icon(Icons.bookmark),
+            label: 'Disimpan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.apps_outlined),
+            activeIcon: Icon(Icons.apps),
+            label: 'Lainnya',
+          ),
         ],
       ),
     );

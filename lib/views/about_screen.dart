@@ -226,17 +226,17 @@ class _AboutScreenState extends State<AboutScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home_filled),
-            label: 'Home',
+            label: 'Beranda',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border_outlined),
             activeIcon: Icon(Icons.bookmark),
-            label: 'Saved',
+            label: 'Disimpan',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Profil',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.apps_outlined),
@@ -270,7 +270,7 @@ class _AboutScreenState extends State<AboutScreen> {
       contentPadding: EdgeInsets.symmetric(
         vertical: 2.0,
         horizontal: 0,
-      ), // Kurangi padding vertikal
+      ),
     );
   }
 }

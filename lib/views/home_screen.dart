@@ -241,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText:
-                          'Search Anything', // Diubah dari 'Cari Apapun....'
+                          'Cari..', // Diubah dari 'Cari Apapun....'
                       hintStyle: TextStyle(
                         color: Colors.grey[500],
                         fontSize: 14,
@@ -535,17 +535,17 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined), // Default outlined
             activeIcon: Icon(Icons.home_filled), // Filled saat aktif
-            label: 'Home',
+            label: 'Beranda',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border_outlined),
             activeIcon: Icon(Icons.bookmark),
-            label: 'Saved',
+            label: 'Disimpan',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Profil',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.apps_outlined),
