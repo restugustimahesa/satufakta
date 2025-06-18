@@ -1,6 +1,8 @@
 // lib/login_page.dart
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:satufakta/services/auth_service.dart';
 import 'package:satufakta/views/home_screen.dart';
 import 'package:satufakta/views/resgister_screen.dart';
 import 'package:satufakta/views/utils/helper.dart';
@@ -13,20 +15,65 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>(); // Untuk validasi jika diperlukan
+  final _emailController = TextEditingController(
+    text: 'news@itg.ac.id',
+  ); // Default value for easy testing
+  final _passwordController = TextEditingController(
+    text: 'ITG#news',
+  ); // Default value
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+
+  Future<void> _login() async {
+    print('--- Tombol Login Ditekan! Proses _login() dimulai. ---');
+
+    setState(() { _isLoading = true; });
+
+    print('Mencoba memanggil Provider.of<AuthService>...');
+
+    try {
+        await Provider.of<AuthService>(context, listen: false).login(
+            _emailController.text,
+            _passwordController.text,
+        );
+        print('Pemanggilan AuthService.login() selesai tanpa error langsung.');
+
+    } catch (error, stackTrace) {
+        // BLOK INI AKAN JALAN JIKA ADA ERROR
+        print('--- TERJADI ERROR SAAT MENCOBA LOGIN! ---');
+        print('TIPE ERROR: ${error.runtimeType}');
+        print('PESAN ERROR: $error');
+        print('STACK TRACE:');
+        print(stackTrace);
+        print('-------------------------------------------');
+        
+        showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+                title: Text('Login Gagal'),
+                content: Text(error.toString()),
+                actions: <Widget>[
+                    TextButton(
+                        child: Text('OK'),
+                        onPressed: () => Navigator.of(ctx).pop(),
+                    )
+                ],
+            ),
+        );
+    }
+    
+    if (mounted) {
+        setState(() { _isLoading = false; });
+    }
+}
 
   // Perkiraan Warna dari Gambar
-  static const Color primaryButtonColor = Color(0xFFF76788); // Merah muda pada tombol
+  static const Color primaryButtonColor = Color(
+    0xFFF76788,
+  ); // Merah muda pada tombol
   static const Color linkTextColor = Color(0xFFFFA726); // Oranye untuk link
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -84,9 +131,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
-                      borderSide: const BorderSide(color: primaryButtonColor, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: primaryButtonColor,
+                        width: 1.5,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                 ),
                 vsLarge,
@@ -117,9 +170,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
-                      borderSide: const BorderSide(color: primaryButtonColor, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: primaryButtonColor,
+                        width: 1.5,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                 ),
                 vsLarge,
@@ -128,13 +187,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton(
-                    onPressed: () {
-                    },
+                    onPressed: () {},
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(50, 30), // area tap yang cukup
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      alignment: Alignment.centerRight
+                      alignment: Alignment.centerRight,
                     ),
                     child: const Text(
                       'Lupa Password',
@@ -158,15 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     elevation: 2,
                   ),
-                  onPressed: () {
-                    // if (_formKey.currentState!.validate()) { // Aktifkan jika ingin validasi
-                      // Proses login
-                      Navigator.pushReplacement( // Ganti halaman agar tidak bisa kembali ke login
-                        context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()),
-                      );
-                    // }
-                  },
+                  onPressed: _login,
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -179,7 +229,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(width: 10),
-                      Icon(Icons.arrow_forward_outlined, color: Colors.white, size: 20),
+                      Icon(
+                        Icons.arrow_forward_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ],
                   ),
                 ),
@@ -191,7 +245,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: RichText(
                     text: TextSpan(
                       text: 'Belum memiliki akun? ',
-                      style: const TextStyle(color: Colors.black87, fontSize: 15),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 15,
+                      ),
                       children: <TextSpan>[
                         TextSpan(
                           text: 'Daftar',
@@ -202,13 +259,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: TextDecoration.underline,
                             decorationColor: linkTextColor,
                           ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ResgisterScreen()),
-                              );
-                            },
+                          recognizer:
+                              TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => const ResgisterScreen(),
+                                    ),
+                                  );
+                                },
                         ),
                       ],
                     ),

@@ -1,21 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:satufakta/views/auth_check_screen.dart';
 import 'package:satufakta/views/login_screen.dart';
 import 'package:satufakta/views/utils/helper.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: SplashScreen(),
-    );
-  }
-}
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -54,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward(); // Mulai animasi
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthCheckScreen()));
       }
     });
   }

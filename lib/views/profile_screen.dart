@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:satufakta/services/auth_service.dart';
+import 'package:satufakta/views/splash_screen.dart';
 import 'package:satufakta/views/widget/app_drawer.dart'; // Sesuaikan path jika berbeda
 import 'package:satufakta/views/utils/helper.dart';
 
@@ -40,6 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<AuthService>(context, listen: false).user;
     // Index untuk BottomNavigationBar di halaman ini adalah 2 (Profile)
     const int currentBottomNavIndex = 2;
 
@@ -164,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              _userName,
+                              user!.fullName,
                               style: const TextStyle(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.bold,
@@ -191,10 +195,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ).withOpacity(0.1), // Warna pink transparan
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: Icon(
-                          Icons.person_outline, // Atau Icons.edit_outlined
-                          color: const Color(0xFFF56A79), // Warna pink
-                          size: 22,
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.logout_sharp,
+                          ), // Atau Icons.edit_outlined
+                          color: const Color(0xFFF56A79),
+                          iconSize: 22, // Warna pink
+                          onPressed: () {
+                            Provider.of<AuthService>(
+                              context,
+                              listen: false,
+                            ).logout();
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => SplashScreen(),
+                              ),
+                              (Route<dynamic> route) => false,
+                            );
+                          },
                         ),
                       ),
                     ],
